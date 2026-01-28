@@ -27,6 +27,7 @@ app.use('/api/customers', customerRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/dashboard', require('./routes/dashboard.routes'));
 app.use('/api/business', require('./routes/business.routes'));
+app.use('/api/payments', require('./routes/payment.routes'));
 
 app.use((err, req, res, next) => {
     console.error(err.stack);

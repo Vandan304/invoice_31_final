@@ -19,27 +19,34 @@ router.get('/', authMiddleware, async (req, res) => {
 // Create or Update Profile
 router.post('/', authMiddleware, async (req, res) => {
     try {
-        const { businessName, email, phone, address, gstNumber, logoUrl, defaultTaxRate, currency } = req.body;
+        // Sanitize and validate payload
+        const { businessName, email, phone, address, gstNumber, logoUrl, signature, defaultTaxRate, currency, website } = req.body;
 
-        let profile = await BusinessProfile.findOne({ userId: req.user.userId });
+        const payload = {
+            businessName,
+            email,
+            phone,
+            address,
+            gstNumber,
+            logoUrl,
+            signature,
+            defaultTaxRate: defaultTaxRate ? Number(defaultTaxRate) : 0,
+            currency,
+            website,
+            // Ensure userId is part of the document if creating
+            userId: req.user.userId
+        };
 
-        if (profile) {
-            // Update
-            profile = await BusinessProfile.findOneAndUpdate(
-                { userId: req.user.userId },
-                { $set: req.body, updatedAt: Date.now() },
-                { new: true }
-            );
-        } else {
-            // Create
-            profile = new BusinessProfile({
-                userId: req.user.userId,
-                ...req.body
-            });
-            await profile.save();
-        }
+        // Use findOneAndUpdate with upsert: true to handle both create and update atomically
+        const profile = await BusinessProfile.findOneAndUpdate(
+            { userId: req.user.userId },
+            { $set: payload },
+            { new: true, upsert: true, setDefaultsOnInsert: true }
+        );
+
         res.json(profile);
     } catch (error) {
+        console.error("Business Profile Save Error:", error);
         res.status(500).json({ error: error.message });
     }
 });

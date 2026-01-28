@@ -9,18 +9,41 @@ router.post('/', authMiddleware, async (req, res) => {
     try {
         const invoiceData = req.body;
         // Generate Invoice Number if not provided
+        // Generate Invoice Number if not provided
         if (!invoiceData.invoiceNumber) {
-            const count = await Invoice.countDocuments();
-            invoiceData.invoiceNumber = `INV-${new Date().getFullYear()}-${(count + 1).toString().padStart(4, '0')}`;
+            const lastInvoice = await Invoice.findOne({ userId: req.user.userId }).sort({ createdAt: -1 });
+            let nextNum = 1;
+            if (lastInvoice && lastInvoice.invoiceNumber.startsWith('INV-')) {
+                const parts = lastInvoice.invoiceNumber.split('-');
+                if (parts.length === 3) {
+                    nextNum = parseInt(parts[2]) + 1;
+                }
+            }
+            invoiceData.invoiceNumber = `INV-${new Date().getFullYear()}-${nextNum.toString().padStart(4, '0')}`;
+        }
+
+        // Sanitize items: Ensure productId is valid ObjectId or null
+        if (invoiceData.items && Array.isArray(invoiceData.items)) {
+            invoiceData.items = invoiceData.items.map(item => ({
+                ...item,
+                productId: (item.productId && item.productId !== '') ? item.productId : null
+            }));
+        }
+
+        // Sanitize customerId
+        if (invoiceData.customer && invoiceData.customer.customerId === '') {
+            invoiceData.customer.customerId = null;
         }
 
         const newInvoice = new Invoice({
             ...invoiceData,
+            userId: req.user.userId,
             createdBy: req.user.userId // Save the user ID to link with business profile
         });
         await newInvoice.save();
         res.status(201).json(newInvoice);
     } catch (error) {
+        console.error("Invoice Create Error:", error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -28,7 +51,7 @@ router.post('/', authMiddleware, async (req, res) => {
 // Get All Invoices
 router.get('/', authMiddleware, async (req, res) => {
     try {
-        const invoices = await Invoice.find()
+        const invoices = await Invoice.find({ userId: req.user.userId })
             .populate('customer.customerId', 'name email') // If using ref
             .sort({ createdAt: -1 });
         res.json(invoices);
@@ -40,7 +63,7 @@ router.get('/', authMiddleware, async (req, res) => {
 // Get Single Invoice
 router.get('/:id', authMiddleware, async (req, res) => {
     try {
-        const invoice = await Invoice.findById(req.params.id);
+        const invoice = await Invoice.findOne({ _id: req.params.id, userId: req.user.userId });
         if (!invoice) return res.status(404).json({ error: 'Invoice not found' });
         res.json(invoice);
     } catch (error) {
@@ -49,9 +72,14 @@ router.get('/:id', authMiddleware, async (req, res) => {
 });
 
 // Update Invoice
-router.put('/:id', async (req, res) => {
+router.put('/:id', authMiddleware, async (req, res) => {
     try {
-        const updatedInvoice = await Invoice.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        const updatedInvoice = await Invoice.findOneAndUpdate(
+            { _id: req.params.id, userId: req.user.userId },
+            req.body,
+            { new: true }
+        );
+        if (!updatedInvoice) return res.status(404).json({ error: 'Invoice not found' });
         res.json(updatedInvoice);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -59,9 +87,10 @@ router.put('/:id', async (req, res) => {
 });
 
 // Delete Invoice
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', authMiddleware, async (req, res) => {
     try {
-        await Invoice.findByIdAndDelete(req.params.id);
+        const deleted = await Invoice.findOneAndDelete({ _id: req.params.id, userId: req.user.userId });
+        if (!deleted) return res.status(404).json({ error: 'Invoice not found' });
         res.json({ message: 'Invoice deleted' });
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -69,9 +98,9 @@ router.delete('/:id', async (req, res) => {
 });
 
 // Download PDF
-router.get('/:id/pdf', async (req, res) => {
+router.get('/:id/pdf', authMiddleware, async (req, res) => {
     try {
-        const invoice = await Invoice.findById(req.params.id);
+        const invoice = await Invoice.findOne({ _id: req.params.id, userId: req.user.userId });
         if (!invoice) return res.status(404).json({ error: 'Invoice not found' });
 
         res.setHeader('Content-Type', 'application/pdf');

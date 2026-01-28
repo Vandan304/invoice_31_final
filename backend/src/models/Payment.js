@@ -1,12 +1,15 @@
 const mongoose = require('mongoose');
 
 const PaymentSchema = new mongoose.Schema({
-    invoiceId: { type: mongoose.Schema.Types.ObjectId, ref: 'Invoice', required: true },
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    razorpayOrderId: { type: String, required: true },
+    razorpayPaymentId: { type: String },
+    razorpaySignature: { type: String },
     amount: { type: Number, required: true },
-    date: { type: Date, default: Date.now },
-    method: { type: String, enum: ['Cash', 'Bank Transfer', 'Credit Card', 'PayPal', 'Other'], default: 'Cash' },
-    note: String,
-    recordedBy: String
-}, { timestamps: true });
+    currency: { type: String, default: 'INR' },
+    status: { type: String, enum: ['created', 'captured', 'failed'], default: 'created' },
+    planType: { type: String, enum: ['monthly', 'yearly'], required: true },
+    createdAt: { type: Date, default: Date.now }
+});
 
 module.exports = mongoose.model('Payment', PaymentSchema);

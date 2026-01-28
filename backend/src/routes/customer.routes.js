@@ -2,9 +2,16 @@ const express = require('express');
 const router = express.Router();
 const Customer = require('../models/Customer');
 
+const authMiddleware = require('../middlewares/auth.middleware');
+
+router.use(authMiddleware);
+
 router.post('/', async (req, res) => {
     try {
-        const customer = new Customer(req.body);
+        const customer = new Customer({
+            ...req.body,
+            userId: req.user.userId
+        });
         await customer.save();
         res.status(201).json(customer);
     } catch (error) {
@@ -14,7 +21,7 @@ router.post('/', async (req, res) => {
 
 router.get('/', async (req, res) => {
     try {
-        const customers = await Customer.find().sort({ createdAt: -1 });
+        const customers = await Customer.find({ userId: req.user.userId }).sort({ createdAt: -1 });
         res.json(customers);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -23,7 +30,12 @@ router.get('/', async (req, res) => {
 
 router.put('/:id', async (req, res) => {
     try {
-        const updated = await Customer.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        const updated = await Customer.findOneAndUpdate(
+            { _id: req.params.id, userId: req.user.userId },
+            req.body,
+            { new: true }
+        );
+        if (!updated) return res.status(404).json({ error: 'Customer not found' });
         res.json(updated);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -32,7 +44,8 @@ router.put('/:id', async (req, res) => {
 
 router.delete('/:id', async (req, res) => {
     try {
-        await Customer.findByIdAndDelete(req.params.id);
+        const deleted = await Customer.findOneAndDelete({ _id: req.params.id, userId: req.user.userId });
+        if (!deleted) return res.status(404).json({ error: 'Customer not found' });
         res.json({ message: 'Customer deleted' });
     } catch (error) {
         res.status(500).json({ error: error.message });

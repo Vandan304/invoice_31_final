@@ -5,6 +5,11 @@ const UserSchema = new mongoose.Schema({
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true }, // Hashed password
     role: { type: String, enum: ['admin', 'staff'], default: 'admin' },
+    planType: { type: String, enum: ['free', 'monthly', 'yearly'], default: 'free' },
+    planStartDate: { type: Date, default: Date.now },
+    planEndDate: { type: Date },
+    isActivePlan: { type: Boolean, default: true },
+    razorpayCustomerId: String,
     createdAt: { type: Date, default: Date.now }
 });
 

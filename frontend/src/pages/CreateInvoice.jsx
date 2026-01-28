@@ -10,12 +10,13 @@ const CreateInvoice = () => {
 
     // State
     const [customers, setCustomers] = useState([]);
+    const [products, setProducts] = useState([]); // Added products state
     const [isLoading, setIsLoading] = useState(false);
 
     const [invoice, setInvoice] = useState({
         invoiceNumber: '',
         customer: null, // Selected customer object
-        items: [{ id: 1, description: '', quantity: 1, unitPrice: 0, total: 0 }],
+        items: [{ id: Date.now(), productId: '', description: '', quantity: 1, unitPrice: 0, total: 0 }],
         taxRate: 0,
         discountRate: 0,
         notes: '',
@@ -28,42 +29,85 @@ const CreateInvoice = () => {
     const discountAmount = (subTotal * invoice.discountRate) / 100;
     const total = subTotal + taxAmount - discountAmount;
 
-    // Fetch REAL Customers
+    // Fetch REAL Customers and Products
     useEffect(() => {
-        const fetchCustomers = async () => {
+        const fetchData = async () => {
             try {
-                const res = await api.get('/customers');
-                setCustomers(res.data);
+                const [custRes, prodRes] = await Promise.all([
+                    api.get('/customers'),
+                    api.get('/products')
+                ]);
+                setCustomers(custRes.data);
+                setProducts(prodRes.data);
             } catch (error) {
-                console.error("Error fetching customers", error);
+                console.error("Error fetching data", error);
             }
         };
-        fetchCustomers();
+        fetchData();
     }, []);
 
     const handleItemChange = (index, field, value) => {
-        const newItems = [...invoice.items];
-        newItems[index][field] = value;
+        setInvoice(prev => {
+            const newItems = prev.items.map((item, i) => {
+                if (i !== index) return item;
 
-        // Auto calculate item total
-        if (field === 'quantity' || field === 'unitPrice') {
-            const qty = field === 'quantity' ? parseFloat(value) || 0 : parseFloat(newItems[index].quantity) || 0;
-            const price = field === 'unitPrice' ? parseFloat(value) || 0 : parseFloat(newItems[index].unitPrice) || 0;
-            newItems[index].total = qty * price;
-        }
-        setInvoice({ ...invoice, items: newItems });
-    };
+                const updatedItem = { ...item, [field]: value };
 
-    const addItem = () => {
-        setInvoice({
-            ...invoice,
-            items: [...invoice.items, { id: Date.now(), description: '', quantity: 1, unitPrice: 0, total: 0 }]
+                // Auto calculate item total
+                if (field === 'quantity' || field === 'unitPrice') {
+                    const qty = field === 'quantity' ? parseFloat(value) || 0 : parseFloat(item.quantity) || 0;
+                    const price = field === 'unitPrice' ? parseFloat(value) || 0 : parseFloat(item.unitPrice) || 0;
+                    updatedItem.total = qty * price;
+                }
+                return updatedItem;
+            });
+            return { ...prev, items: newItems };
         });
     };
 
+    const handleProductSelect = (index, productId) => {
+        const product = products.find(p => p._id === productId);
+        if (!product) return;
+
+        setInvoice(prev => {
+            const newItems = prev.items.map((item, i) => {
+                if (i !== index) return item;
+
+                return {
+                    ...item,
+                    productId: product._id,
+                    description: product.name,
+                    unitPrice: product.price,
+                    quantity: 1,
+                    total: product.price
+                };
+            });
+            return { ...prev, items: newItems };
+        });
+    };
+
+    const addItem = () => {
+        setInvoice(prev => ({
+            ...prev,
+            items: [
+                ...prev.items,
+                {
+                    id: Date.now() + Math.random(),
+                    productId: '',
+                    description: '',
+                    quantity: 1,
+                    unitPrice: 0,
+                    total: 0
+                }
+            ]
+        }));
+    };
+
     const removeItem = (index) => {
-        const newItems = invoice.items.filter((_, i) => i !== index);
-        setInvoice({ ...invoice, items: newItems });
+        setInvoice(prev => ({
+            ...prev,
+            items: prev.items.filter((_, i) => i !== index)
+        }));
     };
 
     const handleSubmit = async () => {
@@ -71,8 +115,13 @@ const CreateInvoice = () => {
         try {
             if (!invoice.customer) return alert("Please select a customer");
 
+            // Filter out empty items
+            const validItems = invoice.items.filter(item => item.description.trim() !== '');
+            if (validItems.length === 0) return alert("Please add at least one item with a description");
+
             const payload = {
                 ...invoice,
+                items: validItems,
                 subTotal,
                 taxAmount,
                 discountAmount,
@@ -155,11 +204,21 @@ const CreateInvoice = () => {
                     <div className="grid grid-cols-2 gap-4">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
-                            <input type="date" className="input-field" />
+                            <input
+                                type="date"
+                                className="input-field"
+                                value={invoice.issueDate ? new Date(invoice.issueDate).toISOString().split('T')[0] : ''}
+                                onChange={(e) => setInvoice({ ...invoice, issueDate: e.target.value })}
+                            />
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Due Date</label>
-                            <input type="date" className="input-field" />
+                            <input
+                                type="date"
+                                className="input-field"
+                                value={invoice.dueDate ? new Date(invoice.dueDate).toISOString().split('T')[0] : ''}
+                                onChange={(e) => setInvoice({ ...invoice, dueDate: e.target.value })}
+                            />
                         </div>
                     </div>
                 </div>
@@ -172,7 +231,7 @@ const CreateInvoice = () => {
                     <table className="w-full text-left mb-4">
                         <thead className="text-xs text-gray-500 uppercase bg-gray-50 border-b">
                             <tr>
-                                <th className="px-4 py-2 w-1/2">Description</th>
+                                <th className="px-4 py-2 w-1/2">Product / Description</th>
                                 <th className="px-4 py-2 w-24">Qty</th>
                                 <th className="px-4 py-2 w-32">Price</th>
                                 <th className="px-4 py-2 w-32">Total</th>
@@ -182,7 +241,17 @@ const CreateInvoice = () => {
                         <tbody className="divide-y divide-gray-100">
                             {invoice.items.map((item, index) => (
                                 <tr key={item.id}>
-                                    <td className="p-2">
+                                    <td className="p-2 space-y-2">
+                                        <select
+                                            className="input-field text-sm py-1"
+                                            onChange={(e) => handleProductSelect(index, e.target.value)}
+                                            value={item.productId || ''}
+                                        >
+                                            <option value="">Select Product (Auto-fill)</option>
+                                            {products.map(p => (
+                                                <option key={p._id} value={p._id}>{p.name} - ₹{p.price}</option>
+                                            ))}
+                                        </select>
                                         <input
                                             type="text"
                                             className="input-field"
@@ -191,15 +260,16 @@ const CreateInvoice = () => {
                                             onChange={(e) => handleItemChange(index, 'description', e.target.value)}
                                         />
                                     </td>
-                                    <td className="p-2">
+                                    <td className="p-2 align-top">
                                         <input
                                             type="number"
                                             className="input-field text-center"
                                             value={item.quantity}
                                             onChange={(e) => handleItemChange(index, 'quantity', e.target.value)}
+                                            min="1"
                                         />
                                     </td>
-                                    <td className="p-2">
+                                    <td className="p-2 align-top">
                                         <input
                                             type="number"
                                             className="input-field text-right"
@@ -207,10 +277,10 @@ const CreateInvoice = () => {
                                             onChange={(e) => handleItemChange(index, 'unitPrice', e.target.value)}
                                         />
                                     </td>
-                                    <td className="p-2 text-right font-medium text-gray-900">
-                                        ${item.total.toFixed(2)}
+                                    <td className="p-2 text-right font-medium text-gray-900 align-top pt-3">
+                                        ₹{item.total.toFixed(2)}
                                     </td>
-                                    <td className="p-2 text-center">
+                                    <td className="p-2 text-center align-top pt-3">
                                         <button
                                             onClick={() => removeItem(index)}
                                             className="text-red-400 hover:text-red-600 transition-colors"
@@ -233,7 +303,7 @@ const CreateInvoice = () => {
                 <div className="w-full md:w-1/3 space-y-3">
                     <div className="flex justify-between text-gray-600">
                         <span>Subtotal</span>
-                        <span>${subTotal.toFixed(2)}</span>
+                        <span>₹{subTotal.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between items-center text-gray-600">
                         <span>Tax (%)</span>
@@ -255,7 +325,7 @@ const CreateInvoice = () => {
                     </div>
                     <div className="border-t pt-3 flex justify-between items-center text-xl font-bold text-indigo-600">
                         <span>Total</span>
-                        <span>${total.toFixed(2)}</span>
+                        <span>₹{total.toFixed(2)}</span>
                     </div>
                 </div>
             </div>

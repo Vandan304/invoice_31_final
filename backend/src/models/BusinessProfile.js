@@ -8,6 +8,7 @@ const BusinessProfileSchema = new mongoose.Schema({
     address: String,
     gstNumber: String,
     logoUrl: String,
+    signature: String, // Added as per requirements
     website: String,
     defaultTaxRate: { type: Number, default: 0 },
     currency: { type: String, default: 'INR' },

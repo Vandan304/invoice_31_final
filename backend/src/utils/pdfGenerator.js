@@ -60,8 +60,8 @@ const generateInvoicePDF = async (invoice, res) => {
         invoice.items.forEach(item => {
             doc.text(item.description, 50, i);
             doc.text(item.quantity, 300, i, { width: 50, align: 'right' });
-            doc.text(item.unitPrice.toFixed(2), 350, i, { width: 70, align: 'right' });
-            doc.text(item.total.toFixed(2), 420, i, { width: 70, align: 'right' });
+            doc.text(`Rs. ${item.unitPrice.toFixed(2)}`, 350, i, { width: 70, align: 'right' });
+            doc.text(`Rs. ${item.total.toFixed(2)}`, 420, i, { width: 70, align: 'right' });
             i += 20;
         });
 
@@ -70,16 +70,16 @@ const generateInvoicePDF = async (invoice, res) => {
         // --- Totals ---
         i += 30;
         doc.text('Subtotal:', 350, i, { width: 70, align: 'right' });
-        doc.text(invoice.subTotal?.toFixed(2) || '0.00', 420, i, { width: 70, align: 'right' });
+        doc.text(`Rs. ${invoice.subTotal?.toFixed(2) || '0.00'}`, 420, i, { width: 70, align: 'right' });
 
         i += 20;
         doc.text('Tax:', 350, i, { width: 70, align: 'right' });
-        doc.text(invoice.taxAmount?.toFixed(2) || '0.00', 420, i, { width: 70, align: 'right' });
+        doc.text(`Rs. ${invoice.taxAmount?.toFixed(2) || '0.00'}`, 420, i, { width: 70, align: 'right' });
 
         i += 20;
         doc.font('Helvetica-Bold').fontSize(12);
         doc.text('Total:', 350, i, { width: 70, align: 'right' });
-        doc.text(invoice.totalAmount?.toFixed(2) || '0.00', 420, i, { width: 70, align: 'right' });
+        doc.text(`Rs. ${invoice.totalAmount?.toFixed(2) || '0.00'}`, 420, i, { width: 70, align: 'right' });
 
         // --- Footer ---
         doc.fontSize(10).font('Helvetica').text('Thank you for your business.', 50, 700, { align: 'center', width: 500 });

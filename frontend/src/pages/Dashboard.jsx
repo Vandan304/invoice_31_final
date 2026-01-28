@@ -46,7 +46,7 @@ const Dashboard = () => {
     const cards = [
         {
             title: 'Total Revenue',
-            value: `$${stats?.totalRevenue?.toLocaleString(undefined, { minimumFractionDigits: 2 }) || '0.00'}`,
+            value: `₹${stats?.totalRevenue?.toLocaleString(undefined, { minimumFractionDigits: 2 }) || '0.00'}`,
             icon: DollarSign,
             color: 'bg-gradient-to-tr from-green-500 to-emerald-400',
             trend: 'Up to date'
@@ -67,7 +67,7 @@ const Dashboard = () => {
         },
         {
             title: 'Pending Amount',
-            value: `$${stats?.pendingrevenue?.toLocaleString(undefined, { minimumFractionDigits: 2 }) || '0.00'}`,
+            value: `₹${stats?.pendingrevenue?.toLocaleString(undefined, { minimumFractionDigits: 2 }) || '0.00'}`,
             icon: TrendingUp,
             color: 'bg-gradient-to-tr from-orange-500 to-pink-400',
             trend: 'Unpaid Invoices'
@@ -110,7 +110,7 @@ const Dashboard = () => {
                                     <tr key={inv._id} className="hover:bg-gray-50 transition-colors">
                                         <td className="px-4 py-3 font-medium text-indigo-600">{inv.invoiceNumber}</td>
                                         <td className="px-4 py-3 text-gray-800">{inv.customer.name || 'Unknown'}</td>
-                                        <td className="px-4 py-3 font-bold text-gray-900">${inv.totalAmount.toFixed(2)}</td>
+                                        <td className="px-4 py-3 font-bold text-gray-900">₹{inv.totalAmount.toFixed(2)}</td>
                                         <td className="px-4 py-3">
                                             <span className={`px-2 py-1 rounded-full text-xs font-bold uppercase
                                                  ${inv.status === 'paid' ? 'bg-green-100 text-green-700' :

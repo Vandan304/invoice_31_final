@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
 const InvoiceItemSchema = new mongoose.Schema({
+    productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
     description: { type: String, required: true },
     quantity: { type: Number, required: true },
     unitPrice: { type: Number, required: true },
@@ -8,7 +9,7 @@ const InvoiceItemSchema = new mongoose.Schema({
 });
 
 const InvoiceSchema = new mongoose.Schema({
-    invoiceNumber: { type: String, required: true, unique: true },
+    invoiceNumber: { type: String, required: true }, // Uniqueness handled by compound index with userId
     customer: {
         name: String,
         email: String,
@@ -28,7 +29,11 @@ const InvoiceSchema = new mongoose.Schema({
     issueDate: { type: Date, default: Date.now },
     notes: String,
     payments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Payment' }],
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     createdBy: { type: String } // Clerk ID of user
 }, { timestamps: true });
+
+// Compound index for unique invoice number per user
+InvoiceSchema.index({ userId: 1, invoiceNumber: 1 }, { unique: true });
 
 module.exports = mongoose.model('Invoice', InvoiceSchema);

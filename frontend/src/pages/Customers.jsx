@@ -7,6 +7,8 @@ const Customers = () => {
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
 
+    const [editingCustomer, setEditingCustomer] = useState(null);
+
     // Form State
     const [formData, setFormData] = useState({ name: '', email: '', phone: '', address: '' });
 
@@ -25,15 +27,32 @@ const Customers = () => {
         }
     };
 
-    const handleCreate = async (e) => {
+    const handleEdit = (customer) => {
+        setEditingCustomer(customer);
+        setFormData({
+            name: customer.name,
+            email: customer.email,
+            phone: customer.phone || '',
+            address: customer.address || ''
+        });
+        setShowModal(true);
+    };
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await api.post('/customers', formData);
+            if (editingCustomer) {
+                await api.put(`/customers/${editingCustomer._id}`, formData);
+            } else {
+                await api.post('/customers', formData);
+            }
             setShowModal(false);
             setFormData({ name: '', email: '', phone: '', address: '' });
+            setEditingCustomer(null);
             fetchCustomers();
         } catch (error) {
-            alert("Failed to create customer");
+            console.error("Error saving customer", error);
+            alert(editingCustomer ? "Failed to update customer" : "Failed to create customer");
         }
     };
 
@@ -54,7 +73,14 @@ const Customers = () => {
                     <h1 className="text-3xl font-bold text-gray-800">Customers</h1>
                     <p className="text-gray-500">Manage your client base</p>
                 </div>
-                <button onClick={() => setShowModal(true)} className="btn-primary">
+                <button
+                    onClick={() => {
+                        setEditingCustomer(null);
+                        setFormData({ name: '', email: '', phone: '', address: '' });
+                        setShowModal(true);
+                    }}
+                    className="btn-primary"
+                >
                     <Plus size={20} />
                     Add Customer
                 </button>
@@ -65,7 +91,7 @@ const Customers = () => {
                     {customers.map(c => (
                         <div key={c._id} className="card hover:shadow-md transition-all group relative">
                             <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <button className="text-gray-400 hover:text-indigo-600"><Edit2 size={16} /></button>
+                                <button onClick={() => handleEdit(c)} className="text-gray-400 hover:text-indigo-600"><Edit2 size={16} /></button>
                                 <button onClick={() => handleDelete(c._id)} className="text-gray-400 hover:text-red-500"><Trash2 size={16} /></button>
                             </div>
 
@@ -107,8 +133,8 @@ const Customers = () => {
             {showModal && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
                     <div className="bg-white rounded-xl p-6 w-full max-w-md shadow-2xl">
-                        <h2 className="text-xl font-bold mb-4">Add New Customer</h2>
-                        <form onSubmit={handleCreate} className="space-y-4">
+                        <h2 className="text-xl font-bold mb-4">{editingCustomer ? 'Edit Customer' : 'Add New Customer'}</h2>
+                        <form onSubmit={handleSubmit} className="space-y-4">
                             <div>
                                 <label className="block text-sm font-medium mb-1">Name</label>
                                 <input type="text" required className="input-field" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} />
@@ -127,7 +153,7 @@ const Customers = () => {
                             </div>
                             <div className="flex justify-end gap-3 mt-6">
                                 <button type="button" onClick={() => setShowModal(false)} className="btn-outline">Cancel</button>
-                                <button type="submit" className="btn-primary">Save Customer</button>
+                                <button type="submit" className="btn-primary">{editingCustomer ? 'Update Customer' : 'Save Customer'}</button>
                             </div>
                         </form>
                     </div>

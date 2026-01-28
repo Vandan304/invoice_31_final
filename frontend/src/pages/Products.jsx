@@ -79,7 +79,7 @@ const Products = () => {
                                         {p.name}
                                     </td>
                                     <td className="px-6 py-4 text-gray-500">{p.description}</td>
-                                    <td className="px-6 py-4 font-bold text-gray-900">${p.price.toFixed(2)}</td>
+                                    <td className="px-6 py-4 font-bold text-gray-900">₹{p.price.toFixed(2)}</td>
                                     <td className="px-6 py-4 text-right flex justify-end gap-2">
                                         <button className="text-gray-400 hover:text-indigo-600"><Edit2 size={18} /></button>
                                         <button onClick={() => handleDelete(p._id)} className="text-gray-400 hover:text-red-500"><Trash2 size={18} /></button>

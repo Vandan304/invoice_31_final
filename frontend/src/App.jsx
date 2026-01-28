@@ -10,7 +10,8 @@ import CreateInvoice from './pages/CreateInvoice';
 import Customers from './pages/Customers';
 import Products from './pages/Products';
 import Settings from './pages/Settings';
-import BusinessProfile from './pages/BusinessProfile'; // Added
+import BusinessProfile from './pages/BusinessProfile';
+import Pricing from './pages/Pricing'; // Added
 
 import LandingPage from './pages/LandingPage';
 
@@ -93,6 +94,15 @@ function App() {
         element={
           <ProtectedRoute>
             <BusinessProfile />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/pricing"
+        element={
+          <ProtectedRoute>
+            <Pricing />
           </ProtectedRoute>
         }
       />

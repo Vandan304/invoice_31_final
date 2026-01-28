@@ -7,26 +7,28 @@ const authMiddleware = require('../middlewares/auth.middleware');
 
 router.get('/stats', authMiddleware, async (req, res) => {
     try {
-        const totalInvoices = await Invoice.countDocuments();
-        const totalCustomers = await Customer.countDocuments();
-        const totalProducts = await Product.countDocuments();
+        const userId = req.user.userId;
 
-        // Calculate Total Revenue (Sum of all invoices)
-        // In a real app, maybe filter by status 'paid'
+        const totalInvoices = await Invoice.countDocuments({ userId });
+        const totalCustomers = await Customer.countDocuments({ userId });
+        const totalProducts = await Product.countDocuments({ userId });
+
+        // Calculate Total Revenue (Sum of all invoices for this user)
         const revenueAgg = await Invoice.aggregate([
+            { $match: { userId: new require('mongoose').Types.ObjectId(userId) } },
             { $group: { _id: null, total: { $sum: "$totalAmount" } } }
         ]);
         const totalRevenue = revenueAgg.length > 0 ? revenueAgg[0].total : 0;
 
         // Pending Payments
         const pendingAgg = await Invoice.aggregate([
-            { $match: { status: 'pending' } },
+            { $match: { userId: new require('mongoose').Types.ObjectId(userId), status: 'pending' } },
             { $group: { _id: null, total: { $sum: "$totalAmount" } } }
         ]);
         const pendingrevenue = pendingAgg.length > 0 ? pendingAgg[0].total : 0;
 
         // Recent Invoices (Last 5)
-        const recentInvoices = await Invoice.find()
+        const recentInvoices = await Invoice.find({ userId })
             .sort({ createdAt: -1 })
             .limit(5)
             .populate('customer.customerId', 'name');

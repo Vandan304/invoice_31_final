@@ -9,7 +9,8 @@ import {
     Settings,
     LogOut,
     PlusCircle,
-    Building2 // Added
+    Building2,
+    CreditCard // Added
 } from 'lucide-react';
 
 const Sidebar = () => {
@@ -22,7 +23,8 @@ const Sidebar = () => {
         { label: 'Create Invoice', path: '/invoices/create', icon: PlusCircle }, // Added direct link
         { label: 'Customers', path: '/customers', icon: Users },
         { label: 'Products', path: '/products', icon: Package },
-        { label: 'Business Profile', path: '/profile', icon: Building2 }, // New Link
+        { label: 'Business Profile', path: '/profile', icon: Building2 },
+        { label: 'Pricing', path: '/pricing', icon: CreditCard },
         { label: 'Settings', path: '/settings', icon: Settings },
     ];
 
