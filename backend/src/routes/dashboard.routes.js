@@ -4,10 +4,19 @@ const Invoice = require('../models/Invoice');
 const Customer = require('../models/Customer');
 const Product = require('../models/Product');
 const authMiddleware = require('../middlewares/auth.middleware');
+const mongoose = require('mongoose');
 
 router.get('/stats', authMiddleware, async (req, res) => {
     try {
         const userId = req.user.userId;
+
+        // Validate userId just in case
+        if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
+            console.error('Dashboard Stats Error: Invalid User ID:', userId);
+            return res.status(400).json({ error: 'Invalid User ID token' });
+        }
+
+        const userObjectId = new mongoose.Types.ObjectId(userId);
 
         const totalInvoices = await Invoice.countDocuments({ userId });
         const totalCustomers = await Customer.countDocuments({ userId });
@@ -15,14 +24,14 @@ router.get('/stats', authMiddleware, async (req, res) => {
 
         // Calculate Total Revenue (Sum of all invoices for this user)
         const revenueAgg = await Invoice.aggregate([
-            { $match: { userId: new require('mongoose').Types.ObjectId(userId) } },
+            { $match: { userId: userObjectId } },
             { $group: { _id: null, total: { $sum: "$totalAmount" } } }
         ]);
         const totalRevenue = revenueAgg.length > 0 ? revenueAgg[0].total : 0;
 
         // Pending Payments
         const pendingAgg = await Invoice.aggregate([
-            { $match: { userId: new require('mongoose').Types.ObjectId(userId), status: 'pending' } },
+            { $match: { userId: userObjectId, status: 'pending' } },
             { $group: { _id: null, total: { $sum: "$totalAmount" } } }
         ]);
         const pendingrevenue = pendingAgg.length > 0 ? pendingAgg[0].total : 0;
@@ -38,10 +47,11 @@ router.get('/stats', authMiddleware, async (req, res) => {
             totalCustomers,
             totalProducts,
             totalRevenue,
-            pendingrevenue,
+            pendingrevenue, // Note: kept 'pendingrevenue' casing to match frontend expectation if any
             recentInvoices
         });
     } catch (error) {
+        console.error('Error in GET /api/dashboard/stats:', error);
         res.status(500).json({ error: error.message });
     }
 });
