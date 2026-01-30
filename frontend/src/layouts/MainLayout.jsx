@@ -31,10 +31,10 @@ const Sidebar = () => {
     return (
         <div className="w-64 bg-gray-900 text-white h-screen fixed left-0 top-0 flex flex-col shadow-2xl z-20">
             <div className="p-6 border-b border-gray-800 flex items-center gap-3">
-                <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold">M</div>
+                <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold">A</div>
                 <div>
                     <h1 className="text-xl font-bold tracking-tight">
-                        MahantAI
+                        Appifly
                     </h1>
                     <p className="text-[10px] text-gray-400 uppercase tracking-wider">Invoice Manager</p>
                 </div>

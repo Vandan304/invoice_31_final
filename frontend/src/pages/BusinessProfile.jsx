@@ -102,7 +102,7 @@ const BusinessProfile = () => {
                                     type="text"
                                     name="businessName"
                                     required
-                                    className="input-field pl-10"
+                                    className="input-field "
                                     value={formData.businessName}
                                     onChange={handleChange}
                                     placeholder="e.g. Acme Corp"
