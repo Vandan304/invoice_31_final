@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Save, Building, Mail, Phone, MapPin, FileText, Globe } from 'lucide-react';
+import { FiSave, FiBriefcase, FiMail, FiPhone, FiMapPin, FiFileText, FiGlobe } from 'react-icons/fi';
+import toast from 'react-hot-toast';
 import api from '../services/api';
+import Input from '../components/Input';
+import Textarea from '../components/Textarea';
+import Select from '../components/Select';
 
 const BusinessProfile = () => {
     const [loading, setLoading] = useState(false);
@@ -52,10 +56,10 @@ const BusinessProfile = () => {
         setLoading(true);
         try {
             await api.post('/business', formData);
-            alert("Business Profile Saved Successfully!");
+            toast.success("Business Profile Saved Successfully!");
         } catch (error) {
             console.error("Error saving profile", error);
-            alert("Failed to save profile");
+            toast.error("Failed to save profile");
         } finally {
             setLoading(false);
         }
@@ -96,89 +100,71 @@ const BusinessProfile = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Business Name</label>
-                            <div className="relative">
-                                <Building className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                                <input
-                                    type="text"
-                                    name="businessName"
-                                    required
-                                    className="input-field "
-                                    value={formData.businessName}
-                                    onChange={handleChange}
-                                    placeholder="e.g. Acme Corp"
-                                />
-                            </div>
+                            <Input
+                                icon={FiBriefcase}
+                                type="text"
+                                name="businessName"
+                                required
+                                value={formData.businessName}
+                                onChange={handleChange}
+                                placeholder="e.g. Acme Corp"
+                            />
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">GST / Tax ID</label>
-                            <div className="relative">
-                                <FileText className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                                <input
-                                    type="text"
-                                    name="gstNumber"
-                                    className="input-field pl-10"
-                                    value={formData.gstNumber}
-                                    onChange={handleChange}
-                                    placeholder="e.g. 29AAAAA0000A1Z5"
-                                />
-                            </div>
+                            <Input
+                                icon={FiFileText}
+                                type="text"
+                                name="gstNumber"
+                                value={formData.gstNumber}
+                                onChange={handleChange}
+                                placeholder="e.g. 29AAAAA0000A1Z5"
+                            />
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                            <div className="relative">
-                                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                                <input
-                                    type="email"
-                                    name="email"
-                                    required
-                                    className="input-field pl-10"
-                                    value={formData.email}
-                                    onChange={handleChange}
-                                    placeholder="billing@company.com"
-                                />
-                            </div>
+                            <Input
+                                icon={FiMail}
+                                type="email"
+                                name="email"
+                                required
+                                value={formData.email}
+                                onChange={handleChange}
+                                placeholder="billing@company.com"
+                            />
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
-                            <div className="relative">
-                                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                                <input
-                                    type="text"
-                                    name="phone"
-                                    className="input-field pl-10"
-                                    value={formData.phone}
-                                    onChange={handleChange}
-                                    placeholder="+91 98765 43210"
-                                />
-                            </div>
+                            <Input
+                                icon={FiPhone}
+                                type="text"
+                                name="phone"
+                                value={formData.phone}
+                                onChange={handleChange}
+                                placeholder="+91 98765 43210"
+                            />
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Website</label>
-                            <div className="relative">
-                                <Globe className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                                <input
-                                    type="text"
-                                    name="website"
-                                    className="input-field pl-10"
-                                    value={formData.website}
-                                    onChange={handleChange}
-                                    placeholder="www.example.com"
-                                />
-                            </div>
+                            <Input
+                                icon={FiGlobe}
+                                type="text"
+                                name="website"
+                                value={formData.website}
+                                onChange={handleChange}
+                                placeholder="www.example.com"
+                            />
                         </div>
                         <div className="md:col-span-2">
                             <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
-                            <div className="relative">
-                                <MapPin className="absolute left-3 top-3 text-gray-400" size={18} />
-                                <textarea
-                                    name="address"
-                                    rows="3"
-                                    className="input-field pl-10 pt-2"
-                                    value={formData.address}
-                                    onChange={handleChange}
-                                    placeholder="Registered office address..."
-                                ></textarea>
-                            </div>
+                            <Textarea
+                                icon={FiMapPin}
+                                name="address"
+                                rows="3"
+                                value={formData.address}
+                                onChange={handleChange}
+                                placeholder="Registered office address..."
+                            />
                         </div>
                     </div>
                 </div>
@@ -189,23 +175,21 @@ const BusinessProfile = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Default Currency</label>
-                            <select
+                            <Select
                                 name="currency"
-                                className="input-field"
                                 value={formData.currency}
                                 onChange={handleChange}
                             >
                                 <option value="INR">INR (₹)</option>
                                 <option value="USD">USD ($)</option>
                                 <option value="EUR">EUR (€)</option>
-                            </select>
+                            </Select>
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Default Tax Rate (%)</label>
-                            <input
+                            <Input
                                 type="number"
                                 name="defaultTaxRate"
-                                className="input-field"
                                 value={formData.defaultTaxRate}
                                 onChange={handleChange}
                                 placeholder="18"
@@ -216,7 +200,7 @@ const BusinessProfile = () => {
 
                 <div className="pt-4 flex justify-end">
                     <button type="submit" disabled={loading} className="btn-primary px-8">
-                        <Save size={20} />
+                        <FiSave size={20} />
                         {loading ? 'Saving Changes...' : 'Save Profile'}
                     </button>
                 </div>

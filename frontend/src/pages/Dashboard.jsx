@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { DollarSign, FileText, Users, TrendingUp, ArrowRight } from 'lucide-react';
 import api from '../services/api';
 import { Link } from 'react-router-dom';
+import Spinner from '../components/Spinner';
 
 const StatCard = ({ title, value, icon: Icon, color, trend }) => (
     <div className="card hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
@@ -41,7 +42,7 @@ const Dashboard = () => {
         fetchStats();
     }, []);
 
-    if (loading) return <div className="p-10 text-center animate-pulse">Loading Dashboard...</div>;
+    if (loading) return <Spinner className="min-h-[500px]" />;
 
     const cards = [
         {

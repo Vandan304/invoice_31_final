@@ -28,6 +28,30 @@ router.get('/', async (req, res) => {
     }
 });
 
+router.get('/:id', async (req, res) => {
+    try {
+        const product = await Product.findOne({ _id: req.params.id, userId: req.user.userId });
+        if (!product) return res.status(404).json({ error: 'Product not found' });
+        res.json(product);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+router.put('/:id', async (req, res) => {
+    try {
+        const product = await Product.findOneAndUpdate(
+            { _id: req.params.id, userId: req.user.userId },
+            req.body,
+            { new: true }
+        );
+        if (!product) return res.status(404).json({ error: 'Product not found' });
+        res.json(product);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 router.delete('/:id', async (req, res) => {
     try {
         const deleted = await Product.findOneAndDelete({ _id: req.params.id, userId: req.user.userId });

@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Trash2, Save, UserPlus, Calculator } from 'lucide-react';
+import { FiHash, FiCalendar, FiPercent } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import api from '../services/api'; // Use API service with interceptor
 import { useAuth } from '../context/AuthContext';
+import Input from '../components/Input';
+import Select from '../components/Select';
 
 const CreateInvoice = () => {
     const navigate = useNavigate();
@@ -29,16 +33,20 @@ const CreateInvoice = () => {
     const discountAmount = (subTotal * invoice.discountRate) / 100;
     const total = subTotal + taxAmount - discountAmount;
 
-    // Fetch REAL Customers and Products
+    // Fetch REAL Customers, Products, and Business Settings
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [custRes, prodRes] = await Promise.all([
+                const [custRes, prodRes, bizRes] = await Promise.all([
                     api.get('/customers'),
-                    api.get('/products')
+                    api.get('/products'),
+                    api.get('/business')
                 ]);
                 setCustomers(custRes.data);
                 setProducts(prodRes.data);
+                if (bizRes.data && bizRes.data.defaultTaxRate !== undefined) {
+                    setInvoice(prev => ({ ...prev, taxRate: bizRes.data.defaultTaxRate }));
+                }
             } catch (error) {
                 console.error("Error fetching data", error);
             }
@@ -113,11 +121,11 @@ const CreateInvoice = () => {
     const handleSubmit = async () => {
         setIsLoading(true);
         try {
-            if (!invoice.customer) return alert("Please select a customer");
+            if (!invoice.customer) return toast.error("Please select a customer");
 
             // Filter out empty items
             const validItems = invoice.items.filter(item => item.description.trim() !== '');
-            if (validItems.length === 0) return alert("Please add at least one item with a description");
+            if (validItems.length === 0) return toast.error("Please add at least one item with a description");
 
             const payload = {
                 ...invoice,
@@ -135,11 +143,11 @@ const CreateInvoice = () => {
             };
 
             await api.post('/invoices', payload);
-            alert("Invoice Saved Successfully!");
+            toast.success("Invoice Saved Successfully!");
             navigate('/invoices');
         } catch (error) {
             console.error("Error creating invoice", error);
-            alert("Failed to save invoice");
+            toast.error("Failed to save invoice");
         } finally {
             setIsLoading(false);
         }
@@ -164,8 +172,7 @@ const CreateInvoice = () => {
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Bill To</label>
                     <div className="flex gap-2">
-                        <select
-                            className="input-field"
+                        <Select
                             onChange={(e) => {
                                 const cust = customers.find(c => c._id === e.target.value);
                                 setInvoice({ ...invoice, customer: cust });
@@ -175,7 +182,7 @@ const CreateInvoice = () => {
                             {customers.map(c => (
                                 <option key={c._id} value={c._id}>{c.name}</option>
                             ))}
-                        </select>
+                        </Select>
                         <button className="btn-outline px-3" onClick={() => navigate('/customers')}>
                             <UserPlus size={20} />
                         </button>
@@ -193,9 +200,10 @@ const CreateInvoice = () => {
                 <div className="space-y-4">
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Invoice Number</label>
-                        <input
+                        <Input
+                            icon={FiHash}
                             type="text"
-                            className="input-field bg-gray-50"
+                            className="bg-gray-50"
                             placeholder="Auto-generated"
                             value={invoice.invoiceNumber}
                             onChange={(e) => setInvoice({ ...invoice, invoiceNumber: e.target.value })}
@@ -204,18 +212,18 @@ const CreateInvoice = () => {
                     <div className="grid grid-cols-2 gap-4">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
-                            <input
+                            <Input
+                                icon={FiCalendar}
                                 type="date"
-                                className="input-field"
                                 value={invoice.issueDate ? new Date(invoice.issueDate).toISOString().split('T')[0] : ''}
                                 onChange={(e) => setInvoice({ ...invoice, issueDate: e.target.value })}
                             />
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Due Date</label>
-                            <input
+                            <Input
+                                icon={FiCalendar}
                                 type="date"
-                                className="input-field"
                                 value={invoice.dueDate ? new Date(invoice.dueDate).toISOString().split('T')[0] : ''}
                                 onChange={(e) => setInvoice({ ...invoice, dueDate: e.target.value })}
                             />
@@ -228,22 +236,20 @@ const CreateInvoice = () => {
             <div className="card">
                 <h3 className="text-lg font-bold mb-4">Items</h3>
                 <div className="overflow-x-auto">
-                    <table className="w-full text-left mb-4">
-                        <thead className="text-xs text-gray-500 uppercase bg-gray-50 border-b">
-                            <tr>
-                                <th className="px-4 py-2 w-1/2">Product / Description</th>
-                                <th className="px-4 py-2 w-24">Qty</th>
-                                <th className="px-4 py-2 w-32">Price</th>
-                                <th className="px-4 py-2 w-32">Total</th>
-                                <th className="px-4 py-2 w-10"></th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-100">
+                    <div className="mb-4 min-w-[700px]">
+                        <div className="grid grid-cols-[1fr_150px_120px_100px_40px] gap-4 px-4 py-2 text-xs text-gray-500 uppercase bg-gray-50 border-b">
+                            <div>Product / Description</div>
+                            <div className="text-center">Qty</div>
+                            <div className="text-right">Price</div>
+                            <div className="text-right">Total</div>
+                            <div></div>
+                        </div>
+                        <div className="divide-y divide-gray-100">
                             {invoice.items.map((item, index) => (
-                                <tr key={item.id}>
-                                    <td className="p-2 space-y-2">
-                                        <select
-                                            className="input-field text-sm py-1"
+                                <div key={item.id} className="grid grid-cols-[1fr_150px_120px_100px_40px] gap-4 px-4 py-3 items-start">
+                                    <div className="space-y-2">
+                                        <Select
+                                            className="text-sm py-1"
                                             onChange={(e) => handleProductSelect(index, e.target.value)}
                                             value={item.productId || ''}
                                         >
@@ -251,47 +257,68 @@ const CreateInvoice = () => {
                                             {products.map(p => (
                                                 <option key={p._id} value={p._id}>{p.name} - ₹{p.price}</option>
                                             ))}
-                                        </select>
-                                        <input
+                                        </Select>
+                                        <Input
                                             type="text"
-                                            className="input-field"
                                             placeholder="Item name or description"
                                             value={item.description}
                                             onChange={(e) => handleItemChange(index, 'description', e.target.value)}
                                         />
-                                    </td>
-                                    <td className="p-2 align-top">
+                                    </div>
+                                    <div className="flex items-center justify-center gap-1">
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                const newQty = Math.max(1, (parseFloat(item.quantity) || 1) - 1);
+                                                handleItemChange(index, 'quantity', newQty);
+                                            }}
+                                            className="w-8 h-9 border border-gray-300 rounded-lg bg-gray-50 hover:bg-gray-200 text-gray-700 font-bold transition-colors flex items-center justify-center shrink-0"
+                                            title="Decrease Quantity"
+                                        >
+                                            -
+                                        </button>
                                         <input
                                             type="number"
-                                            className="input-field text-center"
+                                            className="w-16 h-9 px-2 text-center border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-gray-800 font-medium"
                                             value={item.quantity}
                                             onChange={(e) => handleItemChange(index, 'quantity', e.target.value)}
                                             min="1"
                                         />
-                                    </td>
-                                    <td className="p-2 align-top">
-                                        <input
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                const newQty = (parseFloat(item.quantity) || 0) + 1;
+                                                handleItemChange(index, 'quantity', newQty);
+                                            }}
+                                            className="w-8 h-9 border border-gray-300 rounded-lg bg-gray-50 hover:bg-gray-200 text-gray-700 font-bold transition-colors flex items-center justify-center shrink-0"
+                                            title="Increase Quantity"
+                                        >
+                                            +
+                                        </button>
+                                    </div>
+                                    <div>
+                                        <Input
                                             type="number"
-                                            className="input-field text-right"
+                                            className="text-right w-full"
                                             value={item.unitPrice}
                                             onChange={(e) => handleItemChange(index, 'unitPrice', e.target.value)}
                                         />
-                                    </td>
-                                    <td className="p-2 text-right font-medium text-gray-900 align-top pt-3">
+                                    </div>
+                                    <div className="text-right font-medium text-gray-900 pt-2 break-words">
                                         ₹{item.total.toFixed(2)}
-                                    </td>
-                                    <td className="p-2 text-center align-top pt-3">
+                                    </div>
+                                    <div className="flex justify-center pt-2">
                                         <button
                                             onClick={() => removeItem(index)}
                                             className="text-red-400 hover:text-red-600 transition-colors"
                                         >
                                             <Trash2 size={18} />
                                         </button>
-                                    </td>
-                                </tr>
+                                    </div>
+                                </div>
                             ))}
-                        </tbody>
-                    </table>
+                        </div>
+                    </div>
                 </div>
                 <button onClick={addItem} className="btn-outline w-full border-dashed border-2">
                     <Plus size={18} /> Add Item
@@ -299,31 +326,35 @@ const CreateInvoice = () => {
             </div>
 
             {/* Summary */}
-            <div className="flex justify-end">
-                <div className="w-full md:w-1/3 space-y-3">
-                    <div className="flex justify-between text-gray-600">
-                        <span>Subtotal</span>
-                        <span>₹{subTotal.toFixed(2)}</span>
+            <div className="flex justify-end mt-8">
+                <div className="w-full md:w-1/3 bg-gray-50 p-6 rounded-xl border border-gray-200 space-y-4 shadow-sm">
+                    <div className="flex justify-between items-center text-gray-700">
+                        <span className="font-medium">Subtotal</span>
+                        <span className="font-bold text-gray-900">₹{subTotal.toFixed(2)}</span>
                     </div>
-                    <div className="flex justify-between items-center text-gray-600">
-                        <span>Tax (%)</span>
-                        <input
-                            type="number"
-                            className="w-20 input-field py-1 text-right"
-                            value={invoice.taxRate}
-                            onChange={(e) => setInvoice({ ...invoice, taxRate: parseFloat(e.target.value) || 0 })}
-                        />
+                    <div className="flex justify-between items-center text-gray-700">
+                        <span className="font-medium">Tax ({invoice.taxRate}%)</span>
+                        <span className="font-bold text-gray-900">₹{taxAmount.toFixed(2)}</span>
                     </div>
-                    <div className="flex justify-between items-center text-gray-600">
-                        <span>Discount (%)</span>
-                        <input
+                    <div className="flex justify-between items-center text-gray-700">
+                        <span className="font-medium">Discount (%)</span>
+                        <Input
                             type="number"
-                            className="w-20 input-field py-1 text-right"
+                            className="w-28 text-right bg-white shadow-sm"
+                            icon={FiPercent}
                             value={invoice.discountRate}
                             onChange={(e) => setInvoice({ ...invoice, discountRate: parseFloat(e.target.value) || 0 })}
+                            min="0"
+                            max="100"
                         />
                     </div>
-                    <div className="border-t pt-3 flex justify-between items-center text-xl font-bold text-indigo-600">
+                    {invoice.discountRate > 0 && (
+                        <div className="flex justify-between items-center text-green-600">
+                            <span className="font-medium">Discount Amount</span>
+                            <span className="font-bold">-₹{discountAmount.toFixed(2)}</span>
+                        </div>
+                    )}
+                    <div className="border-t border-gray-300 pt-4 flex justify-between items-center text-2xl font-black text-indigo-600 shadow-sm">
                         <span>Total</span>
                         <span>₹{total.toFixed(2)}</span>
                     </div>

@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
+import Input from '../components/Input';
+import { FiMail, FiLock } from 'react-icons/fi';
 
 const Login = () => {
     const { login } = useAuth();
@@ -20,7 +22,7 @@ const Login = () => {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
             <div className="card w-full max-w-md p-8">
                 <div className="text-center mb-8">
                     <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
@@ -34,20 +36,20 @@ const Login = () => {
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
                         <label className="block text-sm font-medium mb-1">Email</label>
-                        <input
+                        <Input
+                            icon={FiMail}
                             type="email"
                             required
-                            className="input-field"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                         />
                     </div>
                     <div>
                         <label className="block text-sm font-medium mb-1">Password</label>
-                        <input
+                        <Input
+                            icon={FiLock}
                             type="password"
                             required
-                            className="input-field"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                         />

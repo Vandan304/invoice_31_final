@@ -1,5 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
 import { useAuth } from './context/AuthContext';
+import Spinner from './components/Spinner';
 
 // Pages
 import Dashboard from './pages/Dashboard';
@@ -9,7 +11,6 @@ import Invoices from './pages/Invoices';
 import CreateInvoice from './pages/CreateInvoice';
 import Customers from './pages/Customers';
 import Products from './pages/Products';
-import Settings from './pages/Settings';
 import BusinessProfile from './pages/BusinessProfile';
 import Pricing from './pages/Pricing'; // Added
 
@@ -20,13 +21,14 @@ import MainLayout from './layouts/MainLayout';
 
 function ProtectedRoute({ children }) {
   const { token, loading } = useAuth();
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <Spinner className="min-h-screen" />;
   if (!token) return <Navigate to="/sign-in" replace />;
   return <MainLayout>{children}</MainLayout>;
 }
 
 function App() {
   return (
+    <>
     <Routes>
       <Route path="/" element={<LandingPage />} />
 
@@ -81,15 +83,6 @@ function App() {
       />
 
       <Route
-        path="/settings"
-        element={
-          <ProtectedRoute>
-            <Settings />
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
         path="/profile"
         element={
           <ProtectedRoute>
@@ -110,6 +103,8 @@ function App() {
       {/* Fallback */}
       <Route path="*" element={<Navigate to="/sign-in" replace />} />
     </Routes>
+    <Toaster position="top-right" />
+    </>
   );
 }
 

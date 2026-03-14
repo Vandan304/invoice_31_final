@@ -1,5 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Plus, Search, Trash2, Edit2, Mail, MapPin, Phone } from 'lucide-react';
+import { FiUser, FiMail, FiPhone, FiMapPin } from 'react-icons/fi';
+import toast from 'react-hot-toast';
+import ConfirmModal from '../components/ConfirmModal';
+import Input from '../components/Input';
+import Textarea from '../components/Textarea';
+import Spinner from '../components/Spinner';
 import api from '../services/api';
 
 const Customers = () => {
@@ -8,6 +14,7 @@ const Customers = () => {
     const [showModal, setShowModal] = useState(false);
 
     const [editingCustomer, setEditingCustomer] = useState(null);
+    const [confirmDeleteId, setConfirmDeleteId] = useState(null);
 
     // Form State
     const [formData, setFormData] = useState({ name: '', email: '', phone: '', address: '' });
@@ -43,8 +50,10 @@ const Customers = () => {
         try {
             if (editingCustomer) {
                 await api.put(`/customers/${editingCustomer._id}`, formData);
+                toast.success('Customer updated successfully!');
             } else {
                 await api.post('/customers', formData);
+                toast.success('Customer added successfully!');
             }
             setShowModal(false);
             setFormData({ name: '', email: '', phone: '', address: '' });
@@ -52,17 +61,21 @@ const Customers = () => {
             fetchCustomers();
         } catch (error) {
             console.error("Error saving customer", error);
-            alert(editingCustomer ? "Failed to update customer" : "Failed to create customer");
+            toast.error(editingCustomer ? "Failed to update customer" : "Failed to create customer");
         }
     };
 
-    const handleDelete = async (id) => {
-        if (!window.confirm("Are you sure?")) return;
+    const requestDelete = (id) => setConfirmDeleteId(id);
+
+    const confirmDelete = async () => {
         try {
-            await api.delete(`/customers/${id}`);
+            await api.delete(`/customers/${confirmDeleteId}`);
+            toast.success("Customer deleted successfully!");
             fetchCustomers();
         } catch (error) {
-            alert("Failed to delete");
+            toast.error("Failed to delete customer");
+        } finally {
+            setConfirmDeleteId(null);
         }
     };
 
@@ -86,13 +99,13 @@ const Customers = () => {
                 </button>
             </div>
 
-            {loading ? <p>Loading...</p> : (
+            {loading ? <Spinner /> : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {customers.map(c => (
                         <div key={c._id} className="card hover:shadow-md transition-all group relative">
                             <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                 <button onClick={() => handleEdit(c)} className="text-gray-400 hover:text-indigo-600"><Edit2 size={16} /></button>
-                                <button onClick={() => handleDelete(c._id)} className="text-gray-400 hover:text-red-500"><Trash2 size={16} /></button>
+                                <button onClick={() => requestDelete(c._id)} className="text-gray-400 hover:text-red-500"><Trash2 size={16} /></button>
                             </div>
 
                             <div className="flex items-center gap-4 mb-4">
@@ -137,19 +150,19 @@ const Customers = () => {
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <div>
                                 <label className="block text-sm font-medium mb-1">Name</label>
-                                <input type="text" required className="input-field" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} />
+                                <Input icon={FiUser} type="text" required value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} />
                             </div>
                             <div>
                                 <label className="block text-sm font-medium mb-1">Email</label>
-                                <input type="email" required className="input-field" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} />
+                                <Input icon={FiMail} type="email" required value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} />
                             </div>
                             <div>
                                 <label className="block text-sm font-medium mb-1">Phone</label>
-                                <input type="text" className="input-field" value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} />
+                                <Input icon={FiPhone} type="text" value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} />
                             </div>
                             <div>
                                 <label className="block text-sm font-medium mb-1">Address</label>
-                                <textarea className="input-field" value={formData.address} onChange={e => setFormData({ ...formData, address: e.target.value })} />
+                                <Textarea icon={FiMapPin} value={formData.address} onChange={e => setFormData({ ...formData, address: e.target.value })} />
                             </div>
                             <div className="flex justify-end gap-3 mt-6">
                                 <button type="button" onClick={() => setShowModal(false)} className="btn-outline">Cancel</button>
@@ -159,6 +172,15 @@ const Customers = () => {
                     </div>
                 </div>
             )}
+
+            <ConfirmModal
+                isOpen={!!confirmDeleteId}
+                title="Delete Customer"
+                message="Are you sure you want to delete this customer? This action cannot be undone."
+                onConfirm={confirmDelete}
+                onCancel={() => setConfirmDeleteId(null)}
+                confirmText="Delete"
+            />
         </div>
     );
 };

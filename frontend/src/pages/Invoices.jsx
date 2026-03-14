@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Plus, Eye, Download, Search } from 'lucide-react';
+import { Plus, Eye, Download } from 'lucide-react';
+import { FiSearch } from 'react-icons/fi';
+import toast from 'react-hot-toast';
+import Input from '../components/Input';
+import Spinner from '../components/Spinner';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 
@@ -37,7 +41,7 @@ const Invoices = () => {
             link.click();
         } catch (error) {
             console.error("Failed to download PDF", error);
-            alert("Could not download PDF");
+            toast.error("Could not download PDF");
         }
     };
 
@@ -58,7 +62,7 @@ const Invoices = () => {
             setInvoices(invoices.map(inv => inv._id === id ? { ...inv, status: newStatus } : inv));
         } catch (error) {
             console.error("Failed to update status", error);
-            alert("Failed to update status");
+            toast.error("Failed to update status");
         }
     };
 
@@ -77,11 +81,10 @@ const Invoices = () => {
 
             <div className="card">
                 <div className="flex items-center gap-4 mb-6">
-                    <div className="relative flex-1 max-w-md">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-                        <input
+                    <div className="flex-1 max-w-md">
+                        <Input
+                            icon={FiSearch}
                             type="text"
-                            className="input-field pl-10"
                             placeholder="Search by invoice # or client..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
@@ -90,10 +93,10 @@ const Invoices = () => {
                 </div>
 
                 {loading ? (
-                    <div className="text-center py-10 text-gray-500">Loading invoices...</div>
+                    <Spinner />
                 ) : (
                     <div className="overflow-x-auto">
-                        <table className="w-full text-left">
+                        <table className="w-full text-left min-w-[800px]">
                             <thead className="text-xs text-gray-500 uppercase bg-gray-50 border-b">
                                 <tr>
                                     <th className="px-6 py-3">Invoice #</th>
@@ -220,7 +223,7 @@ const Invoices = () => {
                             </div>
 
                             {/* Dates */}
-                            <div className="grid grid-cols-2 gap-8 p-4 bg-gray-50 rounded-lg border">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 p-4 bg-gray-50 rounded-lg border">
                                 <div>
                                     <p className="text-gray-500 text-sm">Issue Date</p>
                                     <p className="font-medium">{new Date(selectedInvoice.issueDate).toLocaleDateString()}</p>
@@ -232,8 +235,8 @@ const Invoices = () => {
                             </div>
 
                             {/* Items */}
-                            <div>
-                                <table className="w-full text-left">
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-left min-w-[500px]">
                                     <thead className="bg-gray-100 text-gray-600 uppercase text-xs">
                                         <tr>
                                             <th className="px-4 py-3">Description</th>

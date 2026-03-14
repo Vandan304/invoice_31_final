@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { CreditCard, Check, Shield, Zap } from 'lucide-react';
+import toast from 'react-hot-toast';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 
@@ -24,7 +25,7 @@ const Pricing = () => {
     };
 
     const handleBuy = async (planType) => {
-        if (!user) return alert("Please login first");
+        if (!user) return toast.error("Please login first");
         setLoading(true);
 
         try {
@@ -48,10 +49,10 @@ const Pricing = () => {
                             razorpay_payment_id: response.razorpay_payment_id,
                             razorpay_signature: response.razorpay_signature
                         });
-                        alert("Payment Successful! Plan Upgraded.");
+                        toast.success("Payment Successful! Plan Upgraded.");
                         fetchCurrentUserPlan();
                     } catch (err) {
-                        alert("Payment Verification Failed");
+                        toast.error("Payment Verification Failed");
                     }
                 },
                 prefill: {
@@ -69,7 +70,7 @@ const Pricing = () => {
 
         } catch (error) {
             console.error("Payment Error", error);
-            alert("Something went wrong");
+            toast.error("Something went wrong");
         } finally {
             setLoading(false);
         }
