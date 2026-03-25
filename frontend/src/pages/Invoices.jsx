@@ -73,10 +73,6 @@ const Invoices = () => {
                     <h1 className="text-3xl font-bold text-gray-800">Invoices</h1>
                     <p className="text-gray-500">Manage and track your invoices</p>
                 </div>
-                <Link to="/invoices/create" className="btn-primary">
-                    <Plus size={20} />
-                    New Invoice
-                </Link>
             </div>
 
             <div className="card">
@@ -144,7 +140,7 @@ const Invoices = () => {
                                             </select>
                                         </td>
                                         <td className="px-6 py-4 text-right">
-                                            <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <div className="flex justify-end gap-2">
                                                 <button
                                                     onClick={() => handleView(inv)}
                                                     className="p-2 text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg"
