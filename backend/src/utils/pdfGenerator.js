@@ -11,7 +11,7 @@ const generateInvoicePDF = async (invoice, res) => {
 
         doc.pipe(res);
 
-        // --- Header ---
+        
 
         // Logo
         if (profile && profile.logoUrl && profile.logoUrl.startsWith('data:image')) {

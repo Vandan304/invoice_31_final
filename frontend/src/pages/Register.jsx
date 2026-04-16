@@ -1,12 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import Input from '../components/Input';
 import { FiUser, FiMail, FiLock } from 'react-icons/fi';
 
 const Register = () => {
-    const { register } = useAuth();
+    const { register, loading, user } = useAuth();
     const navigate = useNavigate();
+
+    useEffect(() => {
+        if (user) {
+            navigate('/dashboard');
+        }
+    }, [user, navigate]);
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -16,7 +22,7 @@ const Register = () => {
         e.preventDefault();
         try {
             await register(username, email, password);
-            navigate('/dashboard');
+            navigate('/verify-otp', { state: { email } });
         } catch (err) {
             setError(err.response?.data?.error || 'Registration failed');
         }
