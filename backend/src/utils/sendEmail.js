@@ -1,4 +1,5 @@
 const nodemailer = require('nodemailer');
+const path = require('path');
 
 const transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -36,7 +37,8 @@ const sendOTP = async (email, otp) => {
     <body style="background-color: #f4f6f8; padding: 20px;">
         <div class="container">
             <div class="header">
-                <h1>InvoicePro</h1>
+                <img src="cid:logo" alt="Appifly Invoice Manager Logo" style="height: 48px; width: auto; margin: 0 auto; display: block;" />
+                <h1>Appifly Invoice Manager</h1>
             </div>
             <div class="content">
                 <div class="lock-icon">🔒</div>
@@ -53,7 +55,7 @@ const sendOTP = async (email, otp) => {
                 </div>
             </div>
             <div class="footer">
-                <p>&copy; ${new Date().getFullYear()} InvoicePro. All rights reserved.</p>
+                <p>&copy; ${new Date().getFullYear()} Appifly Invoice Manager. All rights reserved.</p>
                 <p>123 Business Street, Tech City, TC 90210</p>
             </div>
         </div>
@@ -62,11 +64,16 @@ const sendOTP = async (email, otp) => {
     `;
 
     const mailOptions = {
-        from: `"InvoicePro Security" <${process.env.EMAIL_USER}>`,
+        from: `"Appifly Security" <${process.env.EMAIL_USER}>`,
         to: email,
         subject: '🔐 Your Verification Code',
         text: `Your OTP code is ${otp}. It is valid for 5 minutes.`, // Fallback for clients rendering only text
-        html: htmlTemplate
+        html: htmlTemplate,
+        attachments: [{
+            filename: 'logo.png',
+            path: path.join(__dirname, '../../assets/logo.png'),
+            cid: 'logo'
+        }]
     };
 
     try {

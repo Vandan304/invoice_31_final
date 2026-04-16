@@ -3,6 +3,10 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import Input from '../components/Input';
 import { FiMail, FiLock } from 'react-icons/fi';
+import logo from '../assets/logo1_backup.png';
+import { Loader2 } from 'lucide-react';
+
+
 
 const Login = () => {
     const { login, loading, user } = useAuth(); // Get user
@@ -16,14 +20,18 @@ const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setIsSubmitting(true);
         try {
             await login(email, password);
-            navigate('/verify-otp', { state: { email } });
+            navigate('/dashboard');
         } catch (err) {
             setError(err.response?.data?.error || 'Login failed');
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -31,8 +39,9 @@ const Login = () => {
         <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
             <div className="card w-full max-w-md p-8">
                 <div className="text-center mb-8">
+                    <img src={logo} alt="Appifly Logo" className="h-20 w-auto mx-auto mb-4 object-contain" />
                     <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                        InvoicePro
+                        Appifly Invoice Manager
                     </h1>
                     <p className="text-gray-500 mt-2">Sign in to manage your business</p>
                 </div>
@@ -60,8 +69,15 @@ const Login = () => {
                             onChange={(e) => setPassword(e.target.value)}
                         />
                     </div>
-                    <button type="submit" className="w-full btn-primary py-3">
-                        Sign In
+                    <button type="submit" disabled={isSubmitting} className="w-full btn-primary py-3 flex justify-center items-center">
+                        {isSubmitting ? (
+                            <>
+                                <Loader2 className="animate-spin mr-2" size={20} />
+                                Processing...
+                            </>
+                        ) : (
+                            'Sign In'
+                        )}
                     </button>
                 </form>
 

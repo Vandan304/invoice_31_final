@@ -2,12 +2,26 @@ const express = require('express');
 const router = express.Router();
 const Invoice = require('../models/Invoice');
 const Customer = require('../models/Customer');
+const User = require('../models/User');
 const authMiddleware = require('../middlewares/auth.middleware');
 
 // Create Invoice
 router.post('/', authMiddleware, async (req, res) => {
     try {
         const invoiceData = req.body;
+
+        // Check plan limit for Free users
+        const user = await User.findById(req.user.userId);
+        if (user && user.planType === 'free') {
+            const invoiceCount = await Invoice.countDocuments({ userId: req.user.userId });
+            if (invoiceCount >= 5) {
+                return res.status(403).json({ 
+                    error: 'You have reached your limit now you upgrade your plan',
+                    limitReached: true 
+                });
+            }
+        }
+
         // Generate Invoice Number if not provided
         // Generate Invoice Number if not provided
         if (!invoiceData.invoiceNumber) {

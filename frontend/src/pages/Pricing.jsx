@@ -90,10 +90,10 @@ const Pricing = () => {
                 <div className={`card relative p-8 border-2 ${currentPlan === 'free' ? 'border-indigo-600 ring-4 ring-indigo-50' : 'border-transparent'}`}>
                     {currentPlan === 'free' && (
                         <span className="absolute top-0 right-0 bg-indigo-600 text-white text-xs font-bold px-3 py-1 rounded-bl-xl uppercase tracking-wider">
-                            Current Plan
+                            CURRENT PLAN
                         </span>
                     )}
-                    <h3 className="text-lg font-bold text-gray-500 uppercase tracking-widest">Free</h3>
+                    <h3 className="text-sm font-bold text-gray-500 uppercase tracking-widest">FREE</h3>
                     <div className="mt-4 flex items-baseline">
                         <span className="text-4xl font-bold tracking-tight text-gray-900">₹0</span>
                         <span className="text-gray-500 ml-1">/limited</span>
@@ -118,13 +118,13 @@ const Pricing = () => {
                 <div className={`card relative p-8 border-2 ${currentPlan === 'monthly' ? 'border-indigo-600 ring-4 ring-indigo-50' : 'border-transparent'} transform hover:-translate-y-1 transition-transform`}>
                     {currentPlan === 'monthly' && (
                         <span className="absolute top-0 right-0 bg-indigo-600 text-white text-xs font-bold px-3 py-1 rounded-bl-xl uppercase tracking-wider">
-                            Current Plan
+                            CURRENT PLAN
                         </span>
                     )}
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-xs font-bold px-3 py-1 rounded-b-xl uppercase tracking-wider shadow-lg">
-                        Most Popular
+                    <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wider shadow-lg">
+                        MOST POPULAR
                     </div>
-                    <h3 className="text-lg font-bold text-indigo-600 uppercase tracking-widest mt-4">Monthly</h3>
+                    <h3 className="text-sm font-bold text-indigo-600 uppercase tracking-widest mt-4">MONTHLY</h3>
                     <div className="mt-4 flex items-baseline">
                         <span className="text-4xl font-bold tracking-tight text-gray-900">₹399</span>
                         <span className="text-gray-500 ml-1">/month</span>
@@ -157,15 +157,17 @@ const Pricing = () => {
                 <div className={`card relative p-8 border-2 ${currentPlan === 'yearly' ? 'border-indigo-600 ring-4 ring-indigo-50' : 'border-transparent'}`}>
                     {currentPlan === 'yearly' && (
                         <span className="absolute top-0 right-0 bg-indigo-600 text-white text-xs font-bold px-3 py-1 rounded-bl-xl uppercase tracking-wider">
-                            Current Plan
+                            CURRENT PLAN
                         </span>
                     )}
-                    <h3 className="text-lg font-bold text-gray-500 uppercase tracking-widest">Yearly</h3>
+                    <h3 className="text-sm font-bold text-gray-500 uppercase tracking-widest">YEARLY</h3>
                     <div className="mt-4 flex items-baseline">
                         <span className="text-4xl font-bold tracking-tight text-gray-900">₹3999</span>
                         <span className="text-gray-500 ml-1">/year</span>
                     </div>
-                    <p className="mt-2 text-green-600 text-sm font-bold">Save ₹789 per year</p>
+                    <p className="mt-2 text-green-600 text-sm font-bold flex items-center gap-1">
+                        Save ₹789 per year
+                    </p>
                     <ul className="mt-6 space-y-4">
                         <li className="flex gap-3 text-sm text-gray-600">
                             <Check className="text-green-500 flex-shrink-0" size={20} />

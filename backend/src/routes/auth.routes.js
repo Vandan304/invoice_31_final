@@ -54,15 +54,14 @@ router.post('/login', async (req, res) => {
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) return res.status(400).json({ error: 'Invalid credentials' });
 
-        // Generate OTP
-        const otp = generateOTP();
-        user.otpCode = otp;
-        user.otpExpireTime = new Date(Date.now() + 5 * 60 * 1000);
-        await user.save();
+        // Skip OTP for login, return JWT directly
+        const payload = { userId: user._id, role: user.role };
+        const token = jwt.sign(payload, process.env.JWT_SECRET || 'secretkey', { expiresIn: '1d' });
 
-        await sendOTP(email, otp);
-
-        res.json({ message: 'OTP sent to email.', email });
+        res.json({
+            token,
+            user: { id: user._id, username: user.username, email: user.email, role: user.role }
+        });
     } catch (error) {
         console.error('Login Error:', error);
         res.status(500).json({ error: error.message });

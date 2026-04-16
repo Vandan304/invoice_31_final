@@ -52,7 +52,12 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (email, password) => {
         const res = await api.post('/auth/login', { email, password });
-        return res.data; // Returns { message, email } - No token yet
+        if (res.data.token) {
+            localStorage.setItem('token', res.data.token);
+            setToken(res.data.token);
+            setUser(res.data.user);
+        }
+        return res.data; 
     };
 
     const register = async (username, email, password) => {

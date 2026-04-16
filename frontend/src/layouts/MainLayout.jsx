@@ -13,6 +13,8 @@ import {
     Menu,
     X
 } from 'lucide-react';
+import logo from '../assets/logo1_backup.png';
+
 
 const Sidebar = ({ isOpen, setIsOpen }) => {
     const location = useLocation();
@@ -41,7 +43,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
             <div className={`w-64 bg-gray-900 text-white h-screen fixed left-0 top-0 flex flex-col shadow-2xl z-30 transform transition-transform duration-300 ${isOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}>
                 <div className="p-6 border-b border-gray-800 flex items-center justify-between md:justify-start gap-3">
                     <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold">A</div>
+                        <img src={logo} alt="Appifly Logo" className="h-10 w-auto object-contain" />
                         <div>
                             <h1 className="text-xl font-bold tracking-tight">Appifly</h1>
                             <p className="text-[10px] text-gray-400 uppercase tracking-wider">Invoice Manager</p>
@@ -101,7 +103,7 @@ const MainLayout = ({ children }) => {
                         <button onClick={() => setSidebarOpen(true)} className="text-gray-600 hover:bg-gray-100 p-2 rounded-lg transition-colors">
                             <Menu size={24} />
                         </button>
-                        <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold">A</div>
+                        <img src={logo} alt="Appifly Logo" className="h-10 w-auto object-contain" />
                         <h1 className="text-xl font-bold tracking-tight text-gray-900">Appifly</h1>
                     </div>
                 </header>

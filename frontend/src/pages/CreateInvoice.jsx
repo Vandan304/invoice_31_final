@@ -147,7 +147,11 @@ const CreateInvoice = () => {
             navigate('/invoices');
         } catch (error) {
             console.error("Error creating invoice", error);
-            toast.error("Failed to save invoice");
+            const errorMessage = error.response?.data?.error || "Failed to save invoice";
+            toast.error(errorMessage);
+            
+            // If limit reached, maybe redirect to pricing? 
+            // For now just show the toast as requested.
         } finally {
             setIsLoading(false);
         }
