@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import Input from '../components/Input';
 import { FiUser, FiMail, FiLock } from 'react-icons/fi';
-import logo from '../assets/logo1_backup.png';
+import logo from '../assets/logo.png';
 import { Loader2 } from 'lucide-react';
 
 
@@ -39,8 +39,8 @@ const Register = () => {
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-50 text-gray-800 p-4">
             <div className="card w-full max-w-md p-8">
-                <div className="text-center mb-8">
-                    <img src={logo} alt="Appifly Logo" className="h-20 w-auto mx-auto mb-4 object-contain" />
+                <div className="text-center mb-4">
+                    <img src={logo} alt="Appifly Logo" className="h-28 w-auto mx-auto mb-0 object-contain" />
                     <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
                         Appifly Invoice Manager
                     </h1>

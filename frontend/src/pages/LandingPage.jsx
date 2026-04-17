@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { CheckCircle, Zap, Shield, ChevronRight } from 'lucide-react';
+import { CheckCircle, Zap, Shield, ChevronRight, Package } from 'lucide-react';
+import logo from '../assets/logo.png';
 
 const LandingPage = () => {
     return (
@@ -8,15 +9,17 @@ const LandingPage = () => {
             {/* Navbar */}
             <nav className="fixed w-full bg-white/80 backdrop-blur-md z-50 border-b border-gray-100">
                 <div className="container mx-auto px-6 py-4 flex justify-between items-center">
-                    <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold">A</div>
-                        <span className="text-xl font-bold tracking-tight">Appifly</span>
+                    <div className="flex items-center gap-3">
+                        <img src={logo} alt="Appifly Logo" className="h-16 w-auto object-contain" />
+                        <div>
+                            <h1 className="text-xl font-bold tracking-tight text-gray-900 leading-tight">Appifly</h1>
+                            <p className="text-[10px] text-indigo-600 font-bold uppercase tracking-wider">Invoice Manager</p>
+                        </div>
                     </div>
 
                     <div className="hidden md:flex space-x-8 text-sm font-medium text-gray-500">
                         <a href="#features" className="hover:text-indigo-600 transition-colors">Features</a>
                         <a href="#pricing" className="hover:text-indigo-600 transition-colors">Pricing</a>
-                        <Link to="/about" className="hover:text-indigo-600 transition-colors">About</Link>
                     </div>
 
                     <div className="flex items-center gap-4">
@@ -34,7 +37,7 @@ const LandingPage = () => {
             <section className="pt-32 pb-20 overflow-hidden">
                 <div className="container mx-auto px-6 text-center">
                     <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-indigo-50 text-indigo-700 rounded-full font-bold text-xs uppercase tracking-wide mb-8 animate-fade-in-up">
-                        <Zap size={14} fill="currentColor" />
+                        {/* <Zap size={14} fill="currentColor" /> */}
                         <span>Professional Invoicing Made Simple</span>
                     </div>
                     <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight leading-tight mb-6 max-w-5xl mx-auto">
@@ -73,7 +76,7 @@ const LandingPage = () => {
                     <div className="grid md:grid-cols-3 gap-8">
                         {[
                             { title: "Smart Invoice Management", desc: "Create, manage, and track professional invoices easily with our intuitive dashboard.", icon: Zap },
-                            { title: "Smart Email Reminders", desc: "Set automatic follow-ups for unpaid invoices. Get paid 2x faster without awkward conversations.", icon: CheckCircle },
+                            { title: "Client & Product Catalogs", desc: "Easily build and manage your customer database and product inventory to draft invoices in seconds.", icon: Package },
                             { title: "Professional PDF Export", desc: "Download high-quality, branded PDFs that look great on any device or printer.", icon: Shield },
                         ].map((feature, idx) => (
                             <div key={idx} className="bg-white p-8 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100">
@@ -129,20 +132,23 @@ const LandingPage = () => {
                             </ul>
                         </div>
 
-                        {/* Enterprise */}
-                        <div className="border border-gray-200 rounded-2xl p-8 hover:border-indigo-300 transition-all">
-                            <h3 className="text-xl font-bold text-gray-900 mb-2">Enterprise</h3>
-                            <div className="text-4xl font-extrabold text-gray-900 mb-1">₹1,199<span className="text-lg font-medium text-gray-400">/mo</span></div>
-                            <p className="text-gray-500 text-sm mb-6">Advanced power for large teams.</p>
-                            <Link to="/register" className="block w-full py-3 px-6 bg-gray-900 text-white font-bold text-center rounded-xl hover:bg-gray-800 transition-colors">
-                                Contact Sales
-                            </Link>
-                            <ul className="mt-8 space-y-4 text-gray-600 text-sm">
-                                <li className="flex items-center gap-3"><CheckCircle size={16} className="text-indigo-600" /> Everything in Pro</li>
-                                <li className="flex items-center gap-3"><CheckCircle size={16} className="text-indigo-600" /> API Access</li>
-                                <li className="flex items-center gap-3"><CheckCircle size={16} className="text-indigo-600" /> Priority Support</li>
-                                <li className="flex items-center gap-3"><CheckCircle size={16} className="text-indigo-600" /> Audit Logs</li>
+                        {/* Yearly */}
+                        <div className="border border-gray-200 rounded-2xl p-8 hover:border-indigo-300 transition-all flex flex-col">
+                            <h3 className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-4">Yearly</h3>
+                            <div className="text-5xl font-extrabold text-gray-900 mb-1 flex items-baseline">
+                                ₹3999<span className="text-lg font-medium text-gray-400 ml-1">/year</span>
+                            </div>
+                            <p className="text-green-600 font-bold mb-6">Save ₹789 per year</p>
+                            
+                            <ul className="mb-8 space-y-4 text-gray-600 text-sm flex-1">
+                                <li className="flex items-center gap-3"><CheckCircle size={18} className="text-green-500" /> Everything in Monthly</li>
+                                <li className="flex items-center gap-3"><CheckCircle size={18} className="text-green-500" /> Priority 24/7 Support</li>
+                                <li className="flex items-center gap-3"><CheckCircle size={18} className="text-green-500" /> Advanced Analytics</li>
                             </ul>
+
+                            <Link to="/register" className="block w-full py-3 px-6 bg-indigo-600 text-white font-bold text-center rounded-xl hover:bg-indigo-700 transition-colors shadow-sm">
+                                Choose Yearly
+                            </Link>
                         </div>
                     </div>
                 </div>
@@ -153,9 +159,12 @@ const LandingPage = () => {
                 <div className="container mx-auto px-6">
                     <div className="flex flex-col md:flex-row justify-between items-center">
                         <div className="mb-6 md:mb-0">
-                            <div className="flex items-center gap-2 mb-2">
-                                <div className="w-6 h-6 bg-indigo-500 rounded flex items-center justify-center text-white font-bold text-xs">A</div>
-                                <span className="text-lg font-bold">Appifly</span>
+                            <div className="flex items-center gap-3 mb-4">
+                                <img src={logo} alt="Appifly Logo" className="h-12 w-auto object-contain brightness-0 invert" />
+                                <div>
+                                    <h1 className="text-xl font-bold tracking-tight text-white leading-tight">Appifly</h1>
+                                    <p className="text-[10px] text-gray-400 uppercase tracking-wider">Invoice Manager</p>
+                                </div>
                             </div>
                             <p className="text-gray-400 text-sm">Next-gen invoicing for next-gen businesses.</p>
                         </div>

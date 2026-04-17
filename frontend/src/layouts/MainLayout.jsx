@@ -13,7 +13,7 @@ import {
     Menu,
     X
 } from 'lucide-react';
-import logo from '../assets/logo1_backup.png';
+import logo from '../assets/logo.png';
 
 
 const Sidebar = ({ isOpen, setIsOpen }) => {
@@ -41,9 +41,9 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
             )}
             
             <div className={`w-64 bg-gray-900 text-white h-screen fixed left-0 top-0 flex flex-col shadow-2xl z-30 transform transition-transform duration-300 ${isOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}>
-                <div className="p-6 border-b border-gray-800 flex items-center justify-between md:justify-start gap-3">
+                <div className="px-6 py-0 border-b border-gray-800 flex items-center justify-between md:justify-start gap-3">
                     <div className="flex items-center gap-3">
-                        <img src={logo} alt="Appifly Logo" className="h-10 w-auto object-contain" />
+                        <img src={logo} alt="Appifly Logo" className="h-20 w-auto object-contain" />
                         <div>
                             <h1 className="text-xl font-bold tracking-tight">Appifly</h1>
                             <p className="text-[10px] text-gray-400 uppercase tracking-wider">Invoice Manager</p>
@@ -98,12 +98,12 @@ const MainLayout = ({ children }) => {
             
             <div className="md:ml-64 flex-1 flex flex-col min-w-0">
                 {/* Mobile Header Dashboard */}
-                <header className="md:hidden bg-white shadow-sm p-4 flex justify-between items-center sticky top-0 z-10 w-full border-b border-gray-100">
+                <header className="md:hidden bg-white shadow-sm px-4 py-0 flex justify-between items-center sticky top-0 z-10 w-full border-b border-gray-100">
                     <div className="flex items-center gap-3">
                         <button onClick={() => setSidebarOpen(true)} className="text-gray-600 hover:bg-gray-100 p-2 rounded-lg transition-colors">
                             <Menu size={24} />
                         </button>
-                        <img src={logo} alt="Appifly Logo" className="h-10 w-auto object-contain" />
+                        <img src={logo} alt="Appifly Logo" className="h-16 w-auto object-contain" />
                         <h1 className="text-xl font-bold tracking-tight text-gray-900">Appifly</h1>
                     </div>
                 </header>

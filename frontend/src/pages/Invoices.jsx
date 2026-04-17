@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Plus, Eye, Download } from 'lucide-react';
+import { Plus, Eye, Download, Trash2 } from 'lucide-react';
 import { FiSearch } from 'react-icons/fi';
 import toast from 'react-hot-toast';
+import ConfirmModal from '../components/ConfirmModal';
 import Input from '../components/Input';
 import Spinner from '../components/Spinner';
 import api from '../services/api';
@@ -13,6 +14,7 @@ const Invoices = () => {
     const [invoices, setInvoices] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
+    const [confirmDeleteId, setConfirmDeleteId] = useState(null);
 
     useEffect(() => {
         const fetchInvoices = async () => {
@@ -63,6 +65,21 @@ const Invoices = () => {
         } catch (error) {
             console.error("Failed to update status", error);
             toast.error("Failed to update status");
+        }
+    };
+
+    const requestDelete = (id) => setConfirmDeleteId(id);
+
+    const confirmDelete = async () => {
+        try {
+            await api.delete(`/invoices/${confirmDeleteId}`);
+            toast.success('Invoice deleted successfully');
+            setInvoices(invoices.filter(inv => inv._id !== confirmDeleteId));
+        } catch (error) {
+            console.error("Failed to delete invoice", error);
+            toast.error('Failed to delete invoice');
+        } finally {
+            setConfirmDeleteId(null);
         }
     };
 
@@ -154,6 +171,13 @@ const Invoices = () => {
                                                     title="Download PDF"
                                                 >
                                                     <Download size={18} />
+                                                </button>
+                                                <button
+                                                    onClick={() => requestDelete(inv._id)}
+                                                    className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg"
+                                                    title="Delete Invoice"
+                                                >
+                                                    <Trash2 size={18} />
                                                 </button>
                                             </div>
                                         </td>
@@ -279,6 +303,15 @@ const Invoices = () => {
                     </div>
                 </div>
             )}
+
+            <ConfirmModal
+                isOpen={!!confirmDeleteId}
+                title="Delete Invoice"
+                message="Are you sure you want to delete this invoice? This action cannot be undone."
+                onConfirm={confirmDelete}
+                onCancel={() => setConfirmDeleteId(null)}
+                confirmText="Delete"
+            />
         </div>
     );
 };
